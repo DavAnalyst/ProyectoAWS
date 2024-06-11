@@ -5,23 +5,25 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script: |
+    cd CursoAWS_Proyectos/python/ec2
+    git pull
+    cdk deploy --require-approval never
+  displayName: 'Deploy EC2 instance'
 
-- task: SSH@0
+- task: UsePythonVersion@0
   inputs:
-    sshEndpoint: 'CursoAWS'
-    runOptions: 'inline'
-    inline: |
-      pwd
-      cd cloud
-      git pull
-      cd next-amplified
-      npm install
-      npm run build
-      pm2 start npm -- start
-      pm2 save
-      pm2 startup
-      sudo systemctl restart nginx
-    readyTimeout: '20000'
-  continueOnError: true
+    versionSpec: '3.x'
+    addToPath: true
+
+- script: |
+    pip install awscli --upgrade
+    aws configure set aws_access_key_id $(AWS_ACCESS_KEY_ID)
+    aws configure set aws_secret_access_key $(AWS_SECRET_ACCESS_KEY)
+    aws configure set region $(AWS_REGION)
+  displayName: 'Configure AWS CLI'
+
+- script: |
+    cdk bootstrap aws://992382590076/us-east-1
+    cdk deploy -y
+  displayName: 'Deploy CDK stacks'

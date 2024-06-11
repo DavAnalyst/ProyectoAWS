@@ -31,32 +31,22 @@ class EC2InstanceStack(Stack):
             virtualization=ec2.AmazonLinuxVirt.HVM,
             storage=ec2.AmazonLinuxStorage.GENERAL_PURPOSE
             )
+        
+        ubuntu_linux = ec2.MachineImage.generic_linux(
+            ami_map={
+                "us.east-1":"ami-04b70fa74e45c3917"
+            }
+        )
 
-        # Instance Role and SSM Managed Policy
-        role = iam.Role(self, "InstanceSSM", assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"))
-
-        role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore"))
 
         # Instance
         instance = ec2.Instance(self, "Instance",
-            instance_type=ec2.InstanceType("t3.nano"),
-            machine_image=amzn_linux,
-            vpc = vpc,
-            role = role
+            instance_type=ec2.InstanceType("t2.micro"),
+            machine_image=ubuntu_linux,
+            vpc = vpc
+        
             )
 
-        # Script in S3 as Asset
-        asset = Asset(self, "Asset", path=os.path.join(dirname, "configure.sh"))
-        local_path = instance.user_data.add_s3_download_command(
-            bucket=asset.bucket,
-            bucket_key=asset.s3_object_key
-        )
-
-        # Userdata executes script from S3
-        instance.user_data.add_execute_file_command(
-            file_path=local_path
-            )
-        asset.grant_read(instance.role)
 
 app = App()
 EC2InstanceStack(app, "ec2-instance")
