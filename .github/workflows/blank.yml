@@ -36,7 +36,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install git -y
           echo "Valor de la variable"
-          git clone --mirror https://github.com/cursoawsbog/cloud.git repo
+          git clone --mirror https://github.com/DavAnalyst/ProyectoAWS.git
           cd repo
-          git push --mirror https://ingnicolaslinares:$PAT_AZURE_PAT@dev.azure.com/ingnicolaslinares/curso/_git/curso
+          git push --mirror https://DavAnalyst:$PAT_AZURE_PAT@dev.azure.com/DavAnalyst/CursoAWS_Proyectos/_git/CursoAWS_Proyectos
         continue-on-error: true
+          
